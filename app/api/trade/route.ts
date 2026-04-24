@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
-import pool from '@/lib/db';
+import pool, { ensureSchema } from '@/lib/db';
 import { WATCHLIST } from '@/lib/market-data';
 
 export async function POST(req: NextRequest) {
@@ -18,6 +18,8 @@ export async function POST(req: NextRequest) {
     const coinInfo = WATCHLIST.find(c => c.sym === coin);
     const coinName = coinInfo?.name ?? coin;
     const total    = quantity * price;
+
+    await ensureSchema();
 
     const [userRows] = await pool.execute(
       'SELECT balance FROM users WHERE id = ?',

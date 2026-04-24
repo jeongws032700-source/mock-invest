@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
-import pool from '@/lib/db';
+import pool, { ensureSchema } from '@/lib/db';
 import { signToken } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
@@ -11,6 +11,8 @@ export async function POST(req: NextRequest) {
     if (!email || !password) {
       return NextResponse.json({ error: '이메일과 비밀번호를 입력해주세요.' }, { status: 400 });
     }
+
+    await ensureSchema();
 
     const [rows] = await pool.execute(
       'SELECT id, password_hash FROM users WHERE email = ?',

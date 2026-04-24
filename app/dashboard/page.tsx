@@ -92,8 +92,9 @@ export default function Dashboard() {
     return { ...coin, candles: [...candles.slice(0, -1), updatedLast] };
   }, [coin, klines]);
 
-  const balance   = me?.balance ?? 0;
-  const positions = me?.positions ?? [];
+  const balance      = me?.balance ?? 0;
+  const positions    = me?.positions ?? [];
+  const transactions = me?.transactions ?? [];
 
   const setTheme = (t: string) =>
     document.documentElement.setAttribute('data-theme', t === 'midnight' ? '' : t);
@@ -168,7 +169,7 @@ export default function Dashboard() {
       {/* ── Main ── */}
       <div className={`main layout-${layout}`}>
         {view === 'portfolio' ? (
-          <PortfolioView positions={positions} balance={balance} />
+          <PortfolioView positions={positions} balance={balance} coins={liveCoins} transactions={transactions} />
         ) : (
           <>
             <Watchlist coins={liveCoins} selectedSym={selectedSym} onSelect={setSelectedSym} />
@@ -226,7 +227,7 @@ export default function Dashboard() {
             </div>
 
             <Orderbook coin={coin} balance={balance} positions={positions} />
-            <PositionsTable positions={positions} coins={liveCoins} />
+            <PositionsTable positions={positions} coins={liveCoins} transactions={transactions} onSelect={setSelectedSym} />
           </>
         )}
       </div>

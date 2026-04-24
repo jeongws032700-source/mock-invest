@@ -3,9 +3,10 @@ import { fmtUSD, fmtPct } from './common';
 import { WATCHLIST, genSpark } from '@/lib/market-data';
 
 interface DbPosition { coin: string; quantity: number; avg_price: number; }
+interface Coin { sym: string; price: number; icon: string; mark: string; [key: string]: any; }
+interface DbTransaction { coin: string; type: string; quantity: number; price: number; total: number; created_at: string; }
 
-export function PortfolioView({ positions = [], balance = 0 }: { positions?: DbPosition[]; balance?: number }) {
-  const coins = WATCHLIST;
+export function PortfolioView({ positions = [], balance = 0, coins = WATCHLIST, transactions = [] }: { positions?: DbPosition[]; balance?: number; coins?: Coin[]; transactions?: DbTransaction[] }) {
 
   const rows = positions.map(p => {
     const c      = coins.find(c => c.sym === p.coin);
@@ -68,8 +69,9 @@ export function PortfolioView({ positions = [], balance = 0 }: { positions?: DbP
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 1, background: 'var(--line)', border: '1px solid var(--line)', borderRadius: 'var(--radius-m)', overflow: 'hidden' }}>
-        <div style={{ background: 'var(--bg-1)', padding: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--line)', border: '1px solid var(--line)', borderRadius: 'var(--radius-m)', overflow: 'hidden' }}>
+        {/* 왼쪽: 보유 자산 */}
+        <div style={{ background: 'var(--bg-1)', padding: 20, overflowY: 'auto' }}>
           <div style={{ fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-3)', marginBottom: 12 }}>
             Holdings · 보유 자산
           </div>
@@ -109,9 +111,48 @@ export function PortfolioView({ positions = [], balance = 0 }: { positions?: DbP
             </table>
           )}
         </div>
-        <div style={{ background: 'var(--bg-1)', padding: 20 }}>
-          <div style={{ fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-3)', marginBottom: 16 }}>Allocation · 자산 배분</div>
-          <Allocation alloc={alloc} />
+        {/* 오른쪽: 거래 내역 */}
+        <div style={{ background: 'var(--bg-1)', padding: 20, overflowY: 'auto' }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-3)', marginBottom: 12 }}>
+            Trade History · 거래 내역
+          </div>
+          {transactions.length === 0 ? (
+            <div style={{ color: 'var(--fg-3)', fontSize: 13 }}>거래 내역이 없습니다.</div>
+          ) : (
+            <table className="tbl">
+              <thead><tr>
+                <th>코인</th>
+                <th>유형</th>
+                <th className="num">수량</th>
+                <th className="num">체결가</th>
+                <th className="num">거래금액</th>
+                <th className="num">일시</th>
+              </tr></thead>
+              <tbody>
+                {transactions.map((t, i) => {
+                  const c = coins.find(c => c.sym === t.coin);
+                  const isBuy = t.type === 'buy';
+                  const dt = new Date(t.created_at);
+                  const dateStr = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+                  return (
+                    <tr key={i}>
+                      <td>
+                        <div className="sym-cell">
+                          <div className={'wl-icon ' + (c?.icon ?? '')} style={{ width: 20, height: 20, fontSize: 10 }}>{c?.mark ?? t.coin[0]}</div>
+                          {t.coin}/USDT
+                        </div>
+                      </td>
+                      <td><span className={'mono ' + (isBuy ? 'up' : 'down')} style={{ fontWeight: 600 }}>{isBuy ? '매수' : '매도'}</span></td>
+                      <td className="num mono">{Number(t.quantity)}</td>
+                    <td className="num mono">${fmtUSD(Number(t.price))}</td>
+                    <td className="num mono">${fmtUSD(Number(t.total))}</td>
+                    <td className="num" style={{ color: 'var(--fg-3)', fontSize: 11 }}>{dateStr}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
         </div>
       </div>
     </div>

@@ -249,8 +249,9 @@ export function Orderbook({ coin, balance = 0, positions = [] }: {
 }
 
 interface DbPosition { coin: string; quantity: number; avg_price: number; }
+interface DbTransaction { coin: string; type: string; quantity: number; price: number; total: number; created_at: string; }
 
-export function PositionsTable({ positions = [], coins = [] }: { positions?: DbPosition[]; coins?: Coin[] }) {
+export function PositionsTable({ positions = [], coins = [], transactions = [], onSelect }: { positions?: DbPosition[]; coins?: Coin[]; transactions?: DbTransaction[]; onSelect?: (sym: string) => void }) {
   const [tab, setTab] = useState<'positions' | 'history'>('positions');
 
   const rows = positions.map(p => {
@@ -258,7 +259,7 @@ export function PositionsTable({ positions = [], coins = [] }: { positions?: DbP
     const mark   = c?.price ?? p.avg_price;
     const pnl    = (mark - p.avg_price) * p.quantity;
     const pnlPct = ((mark - p.avg_price) / p.avg_price) * 100;
-    return { ...p, mark, pnl, pnlPct, coin: c };
+    return { ...p, sym: p.coin, mark, pnl, pnlPct, coin: c };
   });
 
   const totalPnL = rows.reduce((s, r) => s + r.pnl, 0);
@@ -299,7 +300,7 @@ export function PositionsTable({ positions = [], coins = [] }: { positions?: DbP
               </tr></thead>
               <tbody>
                 {rows.map((r, i) => (
-                  <tr key={i}>
+                  <tr key={i} onClick={() => onSelect?.(r.sym)} style={{ cursor: onSelect ? 'pointer' : 'default' }}>
                     <td>
                       <div className="sym-cell">
                         {r.coin && <div className={'icon ' + r.coin.icon}>{r.coin.mark}</div>}
@@ -321,9 +322,43 @@ export function PositionsTable({ positions = [], coins = [] }: { positions?: DbP
           )
         )}
         {tab === 'history' && (
-          <div className="empty">
-            <div className="mono-k">거래 내역은 포트폴리오 탭에서 확인하세요</div>
-          </div>
+          transactions.length === 0 ? (
+            <div className="empty"><div className="mono-k">거래 내역이 없습니다</div></div>
+          ) : (
+            <table className="tbl">
+              <thead><tr>
+                <th>Symbol</th>
+                <th>유형</th>
+                <th className="num">수량</th>
+                <th className="num">체결가</th>
+                <th className="num">거래금액</th>
+                <th className="num">일시</th>
+              </tr></thead>
+              <tbody>
+                {transactions.map((t, i) => {
+                  const c = coins.find(c => c.sym === t.coin);
+                  const isBuy = t.type === 'buy';
+                  const dt = new Date(t.created_at);
+                  const dateStr = `${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+                  return (
+                    <tr key={i}>
+                      <td>
+                        <div className="sym-cell">
+                          {c && <div className={'icon ' + c.icon}>{c.mark}</div>}
+                          {t.coin}/USDT
+                        </div>
+                      </td>
+                      <td><span className={'mono ' + (isBuy ? 'up' : 'down')} style={{ fontWeight: 600 }}>{isBuy ? '매수' : '매도'}</span></td>
+                      <td className="num mono">{Number(t.quantity)}</td>
+                      <td className="num mono">${fmtUSD(Number(t.price))}</td>
+                      <td className="num mono">${fmtUSD(Number(t.total))}</td>
+                      <td className="num" style={{ color: 'var(--fg-3)', fontSize: 11 }}>{dateStr}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )
         )}
       </div>
     </div>

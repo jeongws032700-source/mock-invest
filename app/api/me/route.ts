@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
-import pool from '@/lib/db';
+import pool, { ensureSchema } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,6 +8,8 @@ export async function GET(req: NextRequest) {
     if (!token) return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
 
     const user = verifyToken(token);
+
+    await ensureSchema();
 
     const [userRows] = await pool.execute(
       'SELECT id, email, balance FROM users WHERE id = ?',
