@@ -311,10 +311,6 @@ function LoginInner() {
               <ArrowIcon/>
             </button>
 
-            <div className={s.securityRow}>
-              <div className={s.securityDot}/>
-              <span className={s.securityText}>256-bit TLS encrypted · 2FA supported</span>
-            </div>
           </div>
         )}
 
