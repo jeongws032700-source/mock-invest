@@ -78,10 +78,19 @@ export default function Dashboard() {
     staleTime: 30_000,
   });
 
-  const scaledCoin = useMemo(() => ({
-    ...coin,
-    candles: klines ?? coin.candles,
-  }), [coin, klines]);
+  const scaledCoin = useMemo(() => {
+    const candles = klines ?? coin.candles;
+    if (!candles.length) return { ...coin, candles };
+    const last = candles[candles.length - 1];
+    const livePrice = coin.price;
+    const updatedLast = {
+      ...last,
+      c: livePrice,
+      h: Math.max(last.h, livePrice),
+      l: Math.min(last.l, livePrice),
+    };
+    return { ...coin, candles: [...candles.slice(0, -1), updatedLast] };
+  }, [coin, klines]);
 
   const balance   = me?.balance ?? 0;
   const positions = me?.positions ?? [];
