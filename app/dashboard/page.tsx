@@ -12,6 +12,10 @@ import { WATCHLIST } from '@/lib/market-data';
 import { usePriceStore } from '@/lib/priceStore';
 
 const TIMEFRAMES  = ['1m', '5m', '15m', '1H', '4H', '1D', '1W'];
+const TF_MAP: Record<string, string> = {
+  '1m': '1m', '5m': '5m', '15m': '15m',
+  '1H': '1h', '4H': '4h', '1D': '1d', '1W': '1w',
+};
 const CHART_TYPES = [
   { id: 'candle', label: 'C' },
   { id: 'area',   label: 'A' },
@@ -58,22 +62,26 @@ export default function Dashboard() {
   const coin   = liveCoins.find(c => c.sym === selectedSym) ?? liveCoins[0];
   const lastUp = coin.chgPct >= 0;
 
-  const scaledCoin = useMemo(() => {
-    if (!coin.candles?.length) return coin;
-    const lastClose = coin.candles[coin.candles.length - 1].c;
-    if (!lastClose || lastClose === coin.price) return coin;
-    const factor = coin.price / lastClose;
-    return {
-      ...coin,
-      candles: coin.candles.map(c => ({
-        ...c,
-        o: c.o * factor,
-        h: c.h * factor,
-        l: c.l * factor,
-        c: c.c * factor,
-      })),
-    };
-  }, [coin.sym, coin.price]);
+  const { data: klines } = useQuery({
+    queryKey: ['klines', selectedSym, tf],
+    queryFn: async () => {
+      const interval = TF_MAP[tf] ?? '1h';
+      const res = await fetch(
+        `https://api.binance.com/api/v3/klines?symbol=${selectedSym}USDT&interval=${interval}&limit=100`
+      );
+      const raw: any[] = await res.json();
+      return raw.map(k => ({
+        t: k[0], o: parseFloat(k[1]), h: parseFloat(k[2]),
+        l: parseFloat(k[3]), c: parseFloat(k[4]), v: parseFloat(k[5]),
+      }));
+    },
+    staleTime: 30_000,
+  });
+
+  const scaledCoin = useMemo(() => ({
+    ...coin,
+    candles: klines ?? coin.candles,
+  }), [coin, klines]);
 
   const balance   = me?.balance ?? 0;
   const positions = me?.positions ?? [];
