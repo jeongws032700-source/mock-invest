@@ -6,8 +6,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Chart }           from '@/app/components/chart';
 import { Watchlist, Orderbook, PositionsTable } from '@/app/components/panels';
 import { PortfolioView }   from '@/app/components/portfolio';
+import { MarketStream }    from '@/app/components/MarketStream';
 import { fmtUSD, fmtBig, fmtPct, I } from '@/app/components/common';
 import { WATCHLIST } from '@/lib/market-data';
+import { usePriceStore } from '@/lib/priceStore';
 
 const TIMEFRAMES  = ['1m', '5m', '15m', '1H', '4H', '1D', '1W'];
 const CHART_TYPES = [
@@ -45,7 +47,15 @@ export default function Dashboard() {
     onSuccess: () => { qc.clear(); router.push('/login'); },
   });
 
-  const coin   = WATCHLIST.find(c => c.sym === selectedSym) ?? WATCHLIST[0];
+  const livePrices = usePriceStore(s => s.prices);
+
+  const liveCoins = WATCHLIST.map(c => {
+    const live = livePrices[c.sym];
+    if (!live) return c;
+    return { ...c, price: live.price, chgPct: live.chgPct, vol24: live.vol24 };
+  });
+
+  const coin   = liveCoins.find(c => c.sym === selectedSym) ?? liveCoins[0];
   const lastUp = coin.chgPct >= 0;
 
   const balance   = me?.balance ?? 0;
@@ -61,6 +71,8 @@ export default function Dashboard() {
 
   return (
     <div className="app">
+
+      <MarketStream />
 
       {/* ── Top Nav ── */}
       <nav className="topnav">
@@ -108,7 +120,7 @@ export default function Dashboard() {
         </div>
         <div style={{ overflow: 'hidden', flex: 1, display: 'flex', alignItems: 'center' }}>
           <div className="ticker-track">
-            {[...WATCHLIST, ...WATCHLIST].map((c, i) => (
+            {[...liveCoins, ...liveCoins].map((c, i) => (
               <div key={i} className="ticker-item" style={{ cursor: 'pointer' }} onClick={() => setSelectedSym(c.sym)}>
                 <span className="sym">{c.sym}</span>
                 <span className="px mono">{fmtUSD(c.price)}</span>
@@ -125,7 +137,7 @@ export default function Dashboard() {
           <PortfolioView positions={positions} balance={balance} />
         ) : (
           <>
-            <Watchlist coins={WATCHLIST} selectedSym={selectedSym} onSelect={setSelectedSym} />
+            <Watchlist coins={liveCoins} selectedSym={selectedSym} onSelect={setSelectedSym} />
 
             <div className="panel chart-panel">
               <div className="ch-instrument">
@@ -180,7 +192,7 @@ export default function Dashboard() {
             </div>
 
             <Orderbook coin={coin} balance={balance} positions={positions} />
-            <PositionsTable positions={positions} coins={WATCHLIST} />
+            <PositionsTable positions={positions} coins={liveCoins} />
           </>
         )}
       </div>
