@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 // useMutation used for logout
@@ -57,6 +57,23 @@ export default function Dashboard() {
 
   const coin   = liveCoins.find(c => c.sym === selectedSym) ?? liveCoins[0];
   const lastUp = coin.chgPct >= 0;
+
+  const scaledCoin = useMemo(() => {
+    if (!coin.candles?.length) return coin;
+    const lastClose = coin.candles[coin.candles.length - 1].c;
+    if (!lastClose || lastClose === coin.price) return coin;
+    const factor = coin.price / lastClose;
+    return {
+      ...coin,
+      candles: coin.candles.map(c => ({
+        ...c,
+        o: c.o * factor,
+        h: c.h * factor,
+        l: c.l * factor,
+        c: c.c * factor,
+      })),
+    };
+  }, [coin.sym, coin.price]);
 
   const balance   = me?.balance ?? 0;
   const positions = me?.positions ?? [];
@@ -188,7 +205,7 @@ export default function Dashboard() {
                 <button className="ch-tool" title="Drawing">{I.drawing}</button>
               </div>
 
-              <Chart coin={coin} tf={tf} chartType={chartType} />
+              <Chart coin={scaledCoin} tf={tf} chartType={chartType} />
             </div>
 
             <Orderbook coin={coin} balance={balance} positions={positions} />
