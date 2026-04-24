@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fmtUSD, fmtPct, fmtSize, I, Sparkline } from './common';
 import { WATCHLIST, RECENT_TRADES, genOrderbook } from '@/lib/market-data';
@@ -13,6 +13,24 @@ export function Watchlist({ coins, selectedSym, onSelect }: {
   const [query, setQuery]   = useState('');
   const [filter, setFilter] = useState('All');
   const filters = ['All', '★', 'USDT', 'Gainers', 'Losers'];
+
+  const prevPrices = useRef<Record<string, number>>({});
+  const [flashes, setFlashes] = useState<Record<string, 'up' | 'down'>>({});
+
+  useEffect(() => {
+    const next: Record<string, 'up' | 'down'> = {};
+    coins.forEach(c => {
+      const prev = prevPrices.current[c.sym];
+      if (prev !== undefined && prev !== c.price) {
+        next[c.sym] = c.price > prev ? 'up' : 'down';
+      }
+      prevPrices.current[c.sym] = c.price;
+    });
+    if (Object.keys(next).length === 0) return;
+    setFlashes(next);
+    const t = setTimeout(() => setFlashes({}), 600);
+    return () => clearTimeout(t);
+  }, [coins]);
 
   const filtered = useMemo(() => {
     let list = coins;
@@ -55,7 +73,9 @@ export function Watchlist({ coins, selectedSym, onSelect }: {
               </div>
             </div>
             <div className="wl-prices">
-              <div className="p mono">{fmtUSD(c.price)}</div>
+              <div className={'p mono price-flash' + (flashes[c.sym] === 'up' ? ' flash-up' : flashes[c.sym] === 'down' ? ' flash-down' : '')}>
+                {fmtUSD(c.price)}
+              </div>
               <div className={'c ' + (c.chgPct >= 0 ? 'up' : 'down')}>{fmtPct(c.chgPct)}</div>
             </div>
             <Sparkline data={c.spark} color={c.chgPct >= 0 ? 'var(--up)' : 'var(--down)'} width={220} height={16}/>
