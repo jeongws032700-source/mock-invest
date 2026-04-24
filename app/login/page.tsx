@@ -311,12 +311,6 @@ function LoginInner() {
               <ArrowIcon/>
             </button>
 
-            <div className={s.divider}><span className={s.dividerText}>or</span></div>
-
-            <button className={s.btnOauth} type="button">
-              <GoogleIcon/> Google로 계속하기
-            </button>
-
             <div className={s.securityRow}>
               <div className={s.securityDot}/>
               <span className={s.securityText}>256-bit TLS encrypted · 2FA supported</span>
