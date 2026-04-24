@@ -283,7 +283,7 @@ export function PositionsTable({ positions = [], coins = [] }: { positions?: DbP
                     <td>
                       <div className="sym-cell">
                         {r.coin && <div className={'icon ' + r.coin.icon}>{r.coin.mark}</div>}
-                        {r.coin?.sym ?? r.coin}{'/USDT'}
+                        {(r.coin?.sym ?? String(r.coin ?? ''))}{'/USDT'}
                       </div>
                     </td>
                     <td className="num mono">{r.quantity}</td>
