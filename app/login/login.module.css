@@ -1,0 +1,517 @@
+/* ── Base ── */
+.page {
+  font-family: var(--ui);
+  background: var(--bg-0);
+  color: var(--fg-0);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+}
+
+/* ── Left: Market preview ── */
+.left {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid var(--line-soft);
+  display: flex;
+  flex-direction: column;
+}
+.left::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.4;
+}
+.left::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, transparent 60%, var(--bg-0) 100%);
+}
+
+/* Header */
+.leftHeader {
+  position: relative;
+  z-index: 1;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--line-soft);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.logoMark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logoIcon {
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+}
+.logoText {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--fg-0);
+}
+.logoTag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--fg-3);
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+.liveStatus {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--fg-3);
+  font-family: var(--mono);
+}
+.liveDot {
+  width: 6px;
+  height: 6px;
+  background: var(--up);
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Mini tickers */
+.miniTickers {
+  position: relative;
+  z-index: 1;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--line-soft);
+  display: flex;
+  gap: 24px;
+}
+.miniTicker { display: flex; flex-direction: column; gap: 2px; }
+.mtPair { font-family: var(--mono); font-size: 10px; color: var(--fg-3); letter-spacing: 0.05em; }
+.mtPrice { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+.mtPriceUp { color: var(--up); }
+.mtPriceDn { color: var(--down); }
+.mtChange { font-family: var(--mono); font-size: 9px; }
+.mtChangeUp { color: var(--up); }
+.mtChangeDn { color: var(--down); }
+
+/* Chart area */
+.chartArea {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 24px 24px 0;
+}
+.chartLabel { display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }
+.chartPair { font-family: var(--mono); font-size: 13px; color: var(--fg-2); letter-spacing: 0.06em; }
+.chartPriceBig { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--up); }
+.chartChangeBig {
+  font-family: var(--mono); font-size: 12px; color: var(--up);
+  background: var(--up-soft); padding: 2px 7px; border-radius: 3px;
+}
+.svgChart { width: 100%; height: calc(100% - 50px); cursor: crosshair; }
+
+/* Market rows */
+.marketRows {
+  position: relative;
+  z-index: 1;
+  padding: 0 24px 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.mrow {
+  background: var(--bg-1);
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mrowPair { font-family: var(--mono); font-size: 11px; color: var(--fg-2); }
+.mrowPrice { font-family: var(--mono); font-size: 14px; font-weight: 600; }
+.mrowPriceUp { color: var(--up); }
+.mrowPriceDn { color: var(--down); }
+.mrowVol { font-family: var(--mono); font-size: 9px; color: var(--fg-3); }
+
+/* ── Right: Auth form ── */
+.right {
+  width: 440px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 52px 48px;
+  background: var(--bg-0);
+  position: relative;
+  overflow-y: auto;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--fg-3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--fg-0);
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.sub { font-size: 13px; color: var(--fg-2); margin-bottom: 32px; }
+
+/* Auth tabs */
+.authTabs {
+  display: flex;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px;
+  margin-bottom: 28px;
+}
+.authTab {
+  flex: 1;
+  padding: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--fg-2);
+  transition: all 0.15s;
+  border: none;
+  background: transparent;
+  font-family: var(--ui);
+}
+.authTab:hover:not(.authTabActive) { color: var(--fg-1); }
+.authTabActive { background: var(--bg-3); color: var(--fg-0); }
+
+/* Fields */
+.fieldGroup { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.fieldLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--fg-2);
+  text-transform: uppercase;
+}
+.fieldWrap { position: relative; }
+.fieldInput {
+  width: 100%;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 10px 12px 10px 36px;
+  font-family: var(--ui);
+  font-size: 13px;
+  color: var(--fg-0);
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.fieldInput::placeholder { color: var(--fg-3); }
+.fieldInput:focus { border-color: var(--accent); background: var(--bg-2); }
+.fieldInputError { border-color: var(--down) !important; }
+.fieldIcon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--fg-3);
+  pointer-events: none;
+}
+.fieldAction {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--fg-3);
+  cursor: pointer;
+  font-size: 11px;
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+}
+.fieldAction:hover { color: var(--fg-1); }
+.fieldError {
+  font-size: 11px;
+  color: var(--down);
+  font-family: var(--mono);
+  margin-top: 2px;
+}
+
+/* Strength bars */
+.strengthBars { display: flex; gap: 4px; margin-top: 4px; }
+.strengthBar {
+  height: 3px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--line);
+  transition: background 0.3s;
+}
+.strengthLabel {
+  font-size: 10px;
+  color: var(--fg-3);
+  font-family: var(--mono);
+  margin-top: 2px;
+  letter-spacing: 0.05em;
+}
+
+/* Form row */
+.formRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+.checkboxWrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+}
+.checkboxLabel { font-size: 12px; color: var(--fg-2); }
+.forgotLink {
+  font-size: 12px;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--ui);
+}
+.forgotLink:hover { color: var(--fg-0); }
+
+/* Primary button */
+.btnPrimary {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: var(--bg-0);
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--ui);
+}
+.btnPrimary:hover:not(:disabled) { opacity: 0.88; }
+.btnPrimary:active { transform: scale(0.99); }
+.btnPrimary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.divider::before, .divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line-soft);
+}
+.dividerText {
+  font-size: 11px;
+  color: var(--fg-3);
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+}
+
+/* OAuth */
+.btnOauth {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  transition: background 0.15s;
+  font-family: var(--ui);
+}
+.btnOauth:hover { background: var(--bg-2); }
+
+/* Security notice */
+.securityRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--info-soft);
+  border: 1px solid oklch(0.72 0.14 240 / 0.25);
+  border-radius: 5px;
+  margin-top: 8px;
+}
+.securityDot { width: 6px; height: 6px; background: var(--info); border-radius: 50%; flex-shrink: 0; }
+.securityText { font-size: 11px; color: var(--info); font-family: var(--mono); letter-spacing: 0.03em; }
+
+/* Error message */
+.errorMsg {
+  padding: 10px 12px;
+  background: var(--down-soft);
+  border: 1px solid oklch(0.68 0.20 25 / 0.3);
+  border-radius: 5px;
+  font-size: 12px;
+  color: var(--down);
+  font-family: var(--mono);
+  margin-bottom: 14px;
+}
+
+/* 2FA OTP */
+.otpRow { display: flex; gap: 8px; justify-content: center; margin: 4px 0 8px; }
+.otpBox {
+  width: 44px; height: 52px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--fg-0);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.otpBox:focus { border-color: var(--accent); }
+
+/* Footer */
+.formFooter {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footerLinks { display: flex; gap: 14px; }
+.footerLink {
+  font-size: 11px;
+  color: var(--fg-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--ui);
+}
+.footerLink:hover { color: var(--fg-2); }
+.footerVersion { font-family: var(--mono); font-size: 10px; color: var(--fg-3); letter-spacing: 0.06em; }
+
+/* Tweaks */
+.tweaksToggle {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  width: 36px; height: 36px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  color: var(--fg-2);
+  transition: border-color 0.15s, color 0.15s;
+}
+.tweaksToggle:hover { border-color: var(--accent); color: var(--accent); }
+
+.tweaksPanel {
+  position: fixed;
+  bottom: 64px; right: 20px;
+  width: 220px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.tweaksSectionTitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-bottom: 6px;
+}
+.tweaksOptions { display: flex; gap: 6px; flex-wrap: wrap; }
+.tweakChip {
+  padding: 4px 10px;
+  font-size: 11px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--fg-2);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--mono);
+}
+.tweakChip:hover, .tweakChipActive {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Loading spinner */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid var(--bg-0);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* Fade-up animation */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animated { animation: fadeUp 0.25s ease; }
+
+/* Chart line animation */
+@keyframes drawLine {
+  from { stroke-dashoffset: 2000; }
+  to   { stroke-dashoffset: 0; }
+}
+.chartLineAnimate {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: drawLine 2s ease-out 0.3s forwards;
+}
+
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
