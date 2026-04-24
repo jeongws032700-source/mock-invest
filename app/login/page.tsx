@@ -61,6 +61,7 @@ function LoginInner() {
   const [pw,         setPw]        = useState('');
   const [loading,    setLoading]   = useState(false);
   const [error,      setError]     = useState('');
+  const [success,    setSuccess]   = useState('');
   const [theme,      setTheme]     = useState('');
   const [showTweaks, setShowTweaks]= useState(false);
 
@@ -83,7 +84,7 @@ function LoginInner() {
     document.documentElement.setAttribute('data-theme', t);
   }, []);
 
-  const switchTab = (t: Tab) => { setTab(t); setError(''); };
+  const switchTab = (t: Tab) => { setTab(t); setError(''); setSuccess(''); };
 
   /* ── API calls ── */
   async function handleSignin() {
@@ -121,7 +122,8 @@ function LoginInner() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? '회원가입에 실패했습니다.'); return; }
-      router.push('/dashboard');
+      switchTab('signin');
+      setSuccess('가입이 완료되었습니다. 로그인해주세요.');
     } catch {
       setError('서버 연결에 실패했습니다.');
     } finally {
@@ -268,6 +270,7 @@ function LoginInner() {
         </div>
 
         {error && <div className={s.errorMsg}>{error}</div>}
+        {success && <div style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid var(--up)', borderRadius: 6, padding: '10px 14px', fontSize: 13, color: 'var(--up)' }}>{success}</div>}
 
         {/* ── Sign In ── */}
         {tab === 'signin' && (
