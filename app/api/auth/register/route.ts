@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
-import pool from '@/lib/db';
+import pool, { ensureSchema } from '@/lib/db';
 import { signToken } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
@@ -15,10 +15,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '비밀번호는 6자 이상이어야 합니다.' }, { status: 400 });
     }
 
+    await ensureSchema();
+
     const hash = await bcrypt.hash(password, 10);
     const [result] = await pool.execute(
       'INSERT INTO users (email, password_hash, balance) VALUES (?, ?, ?)',
-      [email, hash, 10_000_000]
+      [email, hash, 100_000]
     ) as any;
 
     const token = signToken({ id: result.insertId, email });

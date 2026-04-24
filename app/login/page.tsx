@@ -353,7 +353,7 @@ function LoginInner() {
 
             <div className={s.securityRow} style={{ marginTop: 10 }}>
               <div className={s.securityDot}/>
-              <span className={s.securityText}>즉시 거래 가능 · 초기 자본 ₩10,000,000 지급</span>
+              <span className={s.securityText}>즉시 거래 가능 · 초기 자본 $100,000 지급</span>
             </div>
           </div>
         )}
