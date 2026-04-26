@@ -1,6 +1,6 @@
 'use client';
 import { fmtUSD, fmtPct } from './common';
-import { WATCHLIST, genSpark } from '@/lib/market-data';
+import { WATCHLIST } from '@/lib/market-data';
 
 interface DbPosition { coin: string; quantity: number; avg_price: number; }
 interface Coin { sym: string; price: number; icon: string; mark: string; [key: string]: any; }
@@ -159,48 +159,3 @@ export function PortfolioView({ positions = [], balance = 0, coins = WATCHLIST, 
   );
 }
 
-function EquityCurve() {
-  const data = genSpark(42, 90);
-  const w = 600, h = 160;
-  const min = Math.min(...data), max = Math.max(...data);
-  const range = max - min || 1;
-  const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * h * 0.9 - 8}`).join(' ');
-  const areaPts = `0,${h} ${pts} ${w},${h}`;
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} width="100%" height="200" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="eq" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="var(--up)" stopOpacity="0.3"/>
-          <stop offset="100%" stopColor="var(--up)" stopOpacity="0"/>
-        </linearGradient>
-      </defs>
-      <polygon points={areaPts} fill="url(#eq)"/>
-      <polyline points={pts} fill="none" stroke="var(--up)" strokeWidth="1.5"/>
-    </svg>
-  );
-}
-
-function Allocation({ alloc }: { alloc: { sym: string; usd: number; pct: number; icon: string }[] }) {
-  return (
-    <div>
-      {alloc.map(a => (
-        <div key={a.sym} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-          <div className={'wl-icon ' + a.icon} style={{ width: 20, height: 20, fontSize: 10 }}>{a.sym[0]}</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
-              <span style={{ color: 'var(--fg-0)', fontWeight: 500 }}>{a.sym}</span>
-              <span className="mono" style={{ color: 'var(--fg-2)' }}>{a.pct.toFixed(1)}%</span>
-            </div>
-            <div style={{ height: 4, background: 'var(--bg-3)', borderRadius: 2, overflow: 'hidden' }}>
-              <div style={{ width: `${a.pct}%`, height: '100%', background: 'var(--fg-1)' }}/>
-            </div>
-            <div className="mono" style={{ fontSize: 10, color: 'var(--fg-3)', marginTop: 2 }}>${fmtUSD(a.usd, 0)}</div>
-          </div>
-        </div>
-      ))}
-      {alloc.length === 0 && (
-        <div style={{ color: 'var(--fg-3)', fontSize: 13 }}>자산 없음</div>
-      )}
-    </div>
-  );
-}

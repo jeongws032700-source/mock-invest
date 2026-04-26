@@ -7,7 +7,8 @@ const STREAMS = WATCHLIST.map(c => `${c.sym.toLowerCase()}usdt@miniTicker`).join
 const WS_URL  = `wss://stream.binance.com:9443/stream?streams=${STREAMS}`;
 
 export function MarketStream() {
-  const setPrice = usePriceStore(s => s.setPrice);
+  const setPrice    = usePriceStore(s => s.setPrice);
+  const setConnected = usePriceStore(s => s.setConnected);
 
   useEffect(() => {
     let ws: WebSocket;
@@ -15,6 +16,8 @@ export function MarketStream() {
 
     function connect() {
       ws = new WebSocket(WS_URL);
+
+      ws.onopen   = () => setConnected(true);
 
       ws.onmessage = (e) => {
         const msg = JSON.parse(e.data);
@@ -29,12 +32,12 @@ export function MarketStream() {
       };
 
       ws.onerror  = () => ws.close();
-      ws.onclose  = () => { retryTimeout = setTimeout(connect, 3000); };
+      ws.onclose  = () => { setConnected(false); retryTimeout = setTimeout(connect, 3000); };
     }
 
     connect();
     return () => { clearTimeout(retryTimeout); ws?.close(); };
-  }, [setPrice]);
+  }, [setPrice, setConnected]);
 
   return null;
 }

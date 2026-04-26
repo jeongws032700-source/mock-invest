@@ -51,7 +51,8 @@ export default function Dashboard() {
     onSuccess: () => { qc.clear(); router.push('/login'); },
   });
 
-  const livePrices = usePriceStore(s => s.prices);
+  const livePrices  = usePriceStore(s => s.prices);
+  const wsConnected = usePriceStore(s => s.wsConnected);
 
   const liveCoins = WATCHLIST.map(c => {
     const live = livePrices[c.sym];
@@ -234,11 +235,12 @@ export default function Dashboard() {
 
       {/* ── Status Bar ── */}
       <div className="statusbar">
-        <span><span className="dot"/>Connected · WS OK</span>
-        <span>Ping: 12ms</span>
+        <span>
+          <span className="dot" style={{ background: wsConnected ? 'var(--up)' : 'var(--down)', boxShadow: wsConnected ? '0 0 6px var(--up)' : 'none' }}/>
+          {wsConnected ? 'Connected' : 'Reconnecting…'}
+        </span>
         <span className="spacer"/>
         {me?.email && <span>{me.email}</span>}
-        <span>CoinGecko API</span>
         <span>Mock mode · 가상 투자</span>
       </div>
 
