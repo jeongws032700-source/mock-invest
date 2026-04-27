@@ -1,0 +1,13 @@
+runtime: nodejs22
+
+beta_settings:
+  cloud_sql_instances: project-1ef370ed-13b0-4cf3-a27:asia-northeast3:bank-db
+
+env_variables:
+  NODE_ENV: production
+  JWT_SECRET: your_super_secret_key
+  INSTANCE_CONNECTION_NAME: project-1ef370ed-13b0-4cf3-a27:asia-northeast3:bank-db
+  DB_SOCKET_PATH: /cloudsql/project-1ef370ed-13b0-4cf3-a27:asia-northeast3:bank-db
+  DB_USER: root
+  DB_PASSWORD: "1234"
+  DB_NAME: mock_invest

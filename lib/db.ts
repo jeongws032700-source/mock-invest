@@ -2,11 +2,20 @@ import mysql from 'mysql2/promise';
 
 const database = process.env.DB_NAME || 'mock_invest';
 
+function connectionConfig(includeDatabase = true) {
+  const base: mysql.ConnectionOptions = {
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    ...(includeDatabase ? { database } : {}),
+  };
+  if (process.env.DB_SOCKET_PATH) {
+    return { ...base, socketPath: process.env.DB_SOCKET_PATH };
+  }
+  return { ...base, host: process.env.DB_HOST || 'localhost' };
+}
+
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database,
+  ...connectionConfig(),
   waitForConnections: true,
   connectionLimit: 10,
 });
@@ -22,9 +31,7 @@ function quoteIdentifier(value: string) {
 
 async function createSchema() {
   const connection = await mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
+    ...connectionConfig(false),
     multipleStatements: true,
   });
 
