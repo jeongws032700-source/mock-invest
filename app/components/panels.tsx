@@ -2,7 +2,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fmtUSD, fmtPct, fmtSize, I, Sparkline } from './common';
-import { WATCHLIST, RECENT_TRADES, genOrderbook } from '@/lib/market-data';
+import { genOrderbook } from '@/lib/market-data';
 import type { Coin } from '@/lib/market-data';
 
 interface DbPosition { coin: string; quantity: number; avg_price: number; }
@@ -107,7 +107,7 @@ export function Orderbook({ coin, balance = 0, positions = [] }: {
       const res = await fetch('/api/trade', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ coin: coin.sym, type: side, quantity: Number(qty), price: coin.price }),
+        body: JSON.stringify({ coin: coin.sym, type: side, quantity: Number(qty) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '거래 실패');

@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (secret) return secret;
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET environment variable is required in production.');
+  }
+  return 'mock-invest-secret';
+}
+
 export async function proxy(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
   // 쿠키에서 토큰 꺼내기
@@ -20,9 +29,7 @@ export async function proxy(req: NextRequest) {
 
   if (isProtected && token) {
     try {
-      const secret = new TextEncoder().encode(
-        process.env.JWT_SECRET || 'mock-invest-secret'
-      );
+      const secret = new TextEncoder().encode(getJwtSecret());
       await jwtVerify(token, secret);
       // jose로 토큰 검증. 미들웨어는 jose만 쓸 수 있어 (Next.js 제약)
     } catch {

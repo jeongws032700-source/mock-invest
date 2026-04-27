@@ -17,7 +17,7 @@ export async function GET() {
       ETH: data.ethereum.krw,  // 이더리움 원화 현재가
     });
 
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: '시세 조회 실패' },
       { status: 500 }

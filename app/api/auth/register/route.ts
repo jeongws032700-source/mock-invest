@@ -3,6 +3,14 @@ import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import pool, { ensureSchema } from '@/lib/db';
 import { signToken } from '@/lib/auth';
+import type { ResultSetHeader } from 'mysql2';
+
+function hasMysqlCode(error: unknown, code: string) {
+  return typeof error === 'object'
+    && error !== null
+    && 'code' in error
+    && (error as { code?: unknown }).code === code;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,10 +26,10 @@ export async function POST(req: NextRequest) {
     await ensureSchema();
 
     const hash = await bcrypt.hash(password, 10);
-    const [result] = await pool.execute(
+    const [result] = await pool.execute<ResultSetHeader>(
       'INSERT INTO users (email, password_hash, balance) VALUES (?, ?, ?)',
-      [email, hash, 100_000]
-    ) as any;
+      [email, hash, 10_000_000]
+    );
 
     const token = signToken({ id: result.insertId, email });
 
@@ -36,8 +44,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true }, { status: 201 });
 
-  } catch (error: any) {
-    if (error.code === 'ER_DUP_ENTRY') {
+  } catch (error) {
+    if (hasMysqlCode(error, 'ER_DUP_ENTRY')) {
       return NextResponse.json({ error: '이미 사용중인 이메일입니다.' }, { status: 409 });
     }
     console.error('[register]', error);

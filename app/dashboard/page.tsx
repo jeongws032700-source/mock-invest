@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 // useMutation used for logout
@@ -9,6 +9,7 @@ import { PortfolioView }   from '@/app/components/portfolio';
 import { MarketStream }    from '@/app/components/MarketStream';
 import { fmtUSD, fmtBig, fmtPct, I } from '@/app/components/common';
 import { WATCHLIST } from '@/lib/market-data';
+import type { Candle } from '@/lib/market-data';
 import { usePriceStore } from '@/lib/priceStore';
 
 const TIMEFRAMES  = ['1m', '5m', '15m', '1H', '4H', '1D', '1W'];
@@ -68,19 +69,19 @@ export default function Dashboard() {
     queryFn: async () => {
       const interval = TF_MAP[tf] ?? '1h';
       const res = await fetch(
-        `https://api.binance.com/api/v3/klines?symbol=${selectedSym}USDT&interval=${interval}&limit=100`
+        `https://api.binance.com/api/v3/klines?symbol=${selectedSym}USDT&interval=${interval}&limit=1000`
       );
-      const raw: any[] = await res.json();
+      const raw = await res.json() as [number, string, string, string, string, string][];
       return raw.map(k => ({
         t: k[0], o: parseFloat(k[1]), h: parseFloat(k[2]),
         l: parseFloat(k[3]), c: parseFloat(k[4]), v: parseFloat(k[5]),
-      }));
+      } satisfies Candle));
     },
     staleTime: 30_000,
   });
 
-  const scaledCoin = useMemo(() => {
-    const candles = klines ?? coin.candles;
+  const candles = klines ?? coin.candles;
+  const scaledCoin = (() => {
     if (!candles.length) return { ...coin, candles };
     const last = candles[candles.length - 1];
     const livePrice = coin.price;
@@ -91,7 +92,7 @@ export default function Dashboard() {
       l: Math.min(last.l, livePrice),
     };
     return { ...coin, candles: [...candles.slice(0, -1), updatedLast] };
-  }, [coin, klines]);
+  })();
 
   const balance      = me?.balance ?? 0;
   const positions    = me?.positions ?? [];
@@ -224,7 +225,8 @@ export default function Dashboard() {
                 <button className="ch-tool" title="Drawing">{I.drawing}</button>
               </div>
 
-              <Chart coin={scaledCoin} tf={tf} chartType={chartType} />
+              <Chart coin={scaledCoin} tf={tf} chartType={chartType}
+                     avgPrice={positions.find(p => p.coin === selectedSym)?.avg_price} />
             </div>
 
             <Orderbook coin={coin} balance={balance} positions={positions} />

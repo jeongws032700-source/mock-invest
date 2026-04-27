@@ -3,6 +3,12 @@ import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import pool, { ensureSchema } from '@/lib/db';
 import { signToken } from '@/lib/auth';
+import type { RowDataPacket } from 'mysql2';
+
+interface UserRow extends RowDataPacket {
+  id: number;
+  password_hash: string;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,10 +20,10 @@ export async function POST(req: NextRequest) {
 
     await ensureSchema();
 
-    const [rows] = await pool.execute(
+    const [rows] = await pool.execute<UserRow[]>(
       'SELECT id, password_hash FROM users WHERE email = ?',
       [email]
-    ) as any;
+    );
 
     const user = rows[0];
     if (!user) {
